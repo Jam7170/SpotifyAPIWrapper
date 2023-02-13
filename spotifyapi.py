@@ -73,25 +73,3 @@ class SpotifyAPI:
         try: return self.getAlbum(self.Search(query,'album')['albums']['items'][result-1]['id'])
         except TypeError: return False
 
-
-class SpotifyArtist(SpotifyAPI):
-    def __init__(self,_id,client_id,client_secret):
-        super().__init__(client_id,client_secret)
-
-        self._id = _id
-        self.artist = self.getArtist(self._id)
-        self.url = f'https://api.spotify.com/v1/artists/{self._id}'
-        self.name = self.artist["name"]
-        self.follower_count = self.artist['followers']['total']
-        self.genres = self.artist['genres']
-        self.popularity = self.artist['popularity']
-
-    def getTopTracks(self, rjson=True):
-        headers = self.getResourceHeader()
-        endpoint = f"{self.url}/top-tracks?country=GB"
-        r = requests.get(endpoint, headers=headers)
-        if r.status_code not in range(200,299):
-            return {}
-        if rjson: return r.json()
-    
-    def __repr__(self): return f'{self.name} | Rating: {self.popularity} | Followers: {self.follower_count}\nGenres: {self.genres}'
