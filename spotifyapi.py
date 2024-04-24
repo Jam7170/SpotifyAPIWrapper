@@ -8,9 +8,9 @@ class SpotifyAPI:
         client_creds = f'{self.CLIENT_ID}:{self.CLIENT_SECRET}'
         self.client_creds_b64 = base64.b64encode(client_creds.encode())
 
-        self.performAuth()
+        self.perform_auth()
         
-    def performAuth(self):
+    def perform_auth(self):
         token_url = "https://accounts.spotify.com/api/token"
         token_data = {"grant_type" : "client_credentials"}
         token_headers = {"Authorization": f"Basic {self.client_creds_b64.decode()}"}
@@ -30,46 +30,46 @@ class SpotifyAPI:
             return True
         else: raise Exception("Authentication failed")
 
-    def getAccessToken(self):
+    def get_access_token(self):
         token = self.access_token
         expires = self.access_token_expires
         now = datetime.datetime.now()
         if expires < now:
-            self.performAuth()
-            return self.getAccessToken()
+            self.perform_auth()
+            return self.get_access_token()
         return token
     
-    def getResourceHeader(self):
-        access_token = self.getAccessToken()
+    def get_resource_header(self):
+        access_token = self.get_access_token()
         return {"Authorization" : f"Bearer {access_token}"}
     
-    def getResource(self,_id,resource_type):
+    def get_resource(self,_id,resource_type):
         endpoint = f"https://api.spotify.com/v1/{resource_type}/{_id}"
-        headers = self.getResourceHeader()
+        headers = self.get_resource_header()
         r = requests.get(endpoint, headers=headers)
         if r.status_code not in range(200,299):
             return {}
         return r.json()
     
-    def Search(self,query,search_type):
-        headers = self.getResourceHeader()
+    def search(self,query,search_type):
+        headers = self.get_resource_header()
         endpoint = "https://api.spotify.com/v1/search"
         data = urlencode({"q": f"{query}","type": f"{search_type.lower()}"})
         url = f'{endpoint}?{data}'
         r = requests.get(url, headers=headers)
         if r.status_code in range(200,299): return r.json()
 
-    def getAlbum(self, _id):
-        return self.getResource(_id,'albums')
+    def get_album(self, _id):
+        return self.get_resource(_id,'albums')
 
-    def getArtist(self, _id):
-        return self.getResource(_id,'artists')
+    def get_artist(self, _id):
+        return self.get_resource(_id,'artists')
 
-    def searchArtist(self, query,result=1):
-        try: return self.getArtist(self.Search(query,'artist')['artists']['items'][result-1]['id'])
+    def search_artist(self, query,result=1):
+        try: return self.get_artist(self.search(query,'artist')['artists']['items'][result-1]['id'])
         except TypeError: return False
 
-    def searchAlbum(self, query,result=1):
-        try: return self.getAlbum(self.Search(query,'album')['albums']['items'][result-1]['id'])
+    def search_album(self, query,result=1):
+        try: return self.get_album(self.search(query,'album')['albums']['items'][result-1]['id'])
         except TypeError: return False
 
