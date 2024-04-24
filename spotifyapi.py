@@ -68,7 +68,7 @@ class SpotifyAPI:
         return self._get_resource(_id,'artists')
 
     #TODO: Remake these
-    def search_artist(self, query:str ,result: int=1) -> dict:
+    def search_artist(self, query: str ,result: int=1) -> dict:
         try: return self.get_artist(self.search(query,'artist')['artists']['items'][result-1]['id'])
         except TypeError: return False
 
